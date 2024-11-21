@@ -33,39 +33,38 @@ class selenimuContorller():
         self.driver.quit()
 
     def wait(self, waitTime, elementType, elementValue):
-        self.actionlog(f'[wait] 要素[{elementType},{elementValue}]の表示を最大[{waitTime}]秒待ちます。')
-        element = None
-    # try:
-        wait = WebDriverWait(self.driver, waitTime)
-        element = wait.until(EC.visibility_of_element_located((elementType, elementValue)))
-    # except Exception as e:
-    #     self.errorlog(f'エラーが発生しました: {e}')
+        self.wait_any_of(waitTime, elementType, elementValue)
 
-        # 前回の処理時間からの経過時間
-        elapsed_time = time.time() - self.last_processed_time
-        self.log(f'経過時間:{elapsed_time:.3f}秒')
-        # 経過時間がリクエスト間隔よりも短い場合にリクエストを待ち合わせる
-        if elapsed_time < self.INTERVAL_TIME:
-            sleep_time = (self.INTERVAL_TIME - elapsed_time) * random.uniform(0.8, 1.2)
-            self.log(f'リクエスト待機時間：{sleep_time:.3f}秒')
-            time.sleep(sleep_time)
-        self.last_processed_time = time.time()
-
-        return element
-
-    def wait_any_of(self, waitTime, elementType, elementValue, elementType2, elementValue2, elementType3='', elementValue3=''):
-        if elementType3 == '':
+    def wait_any_of(self, waitTime, elementType, elementValue,
+                                    elementType2='', elementValue2='',
+                                    elementType3='', elementValue3='',
+                                    elementType4='', elementValue4=''):
+        if elementType2 == '':
+            self.actionlog(f'[wait] 要素[{elementType},{elementValue}]の表示を最大[{waitTime}]秒待ちます。')
+        elif elementType3 == '':
             self.actionlog(f'[wait] 要素[{elementType},{elementValue}]、もしくは、要素[{elementType2},{elementValue2}]の表示を最大[{waitTime}]秒待ちます。')
-        else:
+        elif elementType4 == '':
             self.actionlog(f'[wait] 要素[{elementType},{elementValue}]、もしくは、要素[{elementType2},{elementValue2}]、もしくは、要素[{elementType3},{elementValue3}]の表示を最大[{waitTime}]秒待ちます。')
+        else:
+            self.actionlog(f'[wait] 要素[{elementType},{elementValue}]、もしくは、要素[{elementType2},{elementValue2}]、もしくは、要素[{elementType3},{elementValue3}]、もしくは、要素[{elementType4},{elementValue4}]の表示を最大[{waitTime}]秒待ちます。')
         
         # try:
         wait = WebDriverWait(self.driver, waitTime)
-        if elementType3 == '':
+        if elementType2 == '':
+            element = wait.until(EC.visibility_of_element_located((elementType, elementValue)))    
+        elif elementType3 == '':
             wait.until(
                 EC.any_of(
                     EC.visibility_of_element_located((elementType, elementValue)),
                     EC.visibility_of_element_located((elementType2, elementValue2))
+                )
+            )
+        elif elementType4 == '':
+            wait.until(
+                EC.any_of(
+                    EC.visibility_of_element_located((elementType, elementValue)),
+                    EC.visibility_of_element_located((elementType2, elementValue2)),
+                    EC.visibility_of_element_located((elementType3, elementValue3))
                 )
             )
         else:
@@ -73,7 +72,8 @@ class selenimuContorller():
                 EC.any_of(
                     EC.visibility_of_element_located((elementType, elementValue)),
                     EC.visibility_of_element_located((elementType2, elementValue2)),
-                    EC.visibility_of_element_located((elementType3, elementValue3))
+                    EC.visibility_of_element_located((elementType3, elementValue3)),
+                    EC.visibility_of_element_located((elementType4, elementValue4))
                 )
             )
 
@@ -82,13 +82,15 @@ class selenimuContorller():
 
         # 前回の処理時間からの経過時間
         elapsed_time = time.time() - self.last_processed_time
-        self.log(f'経過時間:{elapsed_time:.3f}秒')
+        self.log(f'経過時間：{elapsed_time:.3f}秒')
         # 経過時間がリクエスト間隔よりも短い場合にリクエストを待ち合わせる
         if elapsed_time < self.INTERVAL_TIME:
             sleep_time = (self.INTERVAL_TIME - elapsed_time) * random.uniform(0.8, 1.2)
-            self.log(f'リクエスト待機時間：{sleep_time:.3f}秒')
+            self.log(f'待機時間：{sleep_time:.3f}秒')
             time.sleep(sleep_time)
         self.last_processed_time = time.time()
+
+        return
 
     def click(self, elementType, elementValue):
         self.actionlog(f'[click] 要素[{elementType},{elementValue}]をクリックします。')
