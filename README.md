@@ -5,6 +5,7 @@
 ## 目次
 
 - [インストール](#インストール)
+- [入力画面実行](#入力画面実行)
 - [実行](#実行)
 - [ライセンス](#ライセンス)
 
@@ -32,6 +33,43 @@
    cd touki-scrapy
    pip install -r requirements.txt
    ```
+
+## 入力画面実行
+
+1. **実行:**
+
+   ```cmd
+   streamlit run inputCondition.py
+   ```
+
+   ```cmd
+   You can now view your Streamlit app in your browser.
+
+   Local URL: http://localhost:8501
+   Network URL: http://192.168.1.3:8501
+   ```
+
+   と表示された後、ブラウザに入力画面が表示されます。入力画面の収集条件を入力して「収集実行」をクリックしてください。
+
+2. **実行結果:**
+
+   「output」ディレクトリにExcelファイルを作成します。
+   以下は2024/11/13 9:18～9:28に実行した結果の例。
+
+   ```cmd
+   dir output
+    -a----        2024/11/13      9:20          59620 output_20241113_091828.xlsx
+   ```
+
+3. **入力画面停止:**
+
+   1.で実行したコマンド入力画面で「ctrl＋C」を入力してください。
+
+   ```cmd
+   Stopping...
+   ```
+
+   と表示された後、コマンド入力状態となります。
 
 ## 実行
 
