@@ -1,9 +1,10 @@
 import openpyxl
 from datetime import datetime
+from preflist import PREF_CODE
 
 def editCollectionCondition(conditions):
     condition = f'【土地/建物】{conditions[0]}'
-    condition += f'／【都道府県番号】{conditions[1]}'
+    condition += f'／【都道府県】{list(PREF_CODE)[int(conditions[1])-1]}'
     condition += f'／【市町村名】{conditions[2]}'
     condition += f'／【地番・家屋番号】{conditions[3]}～{conditions[4]}'
     condition += f'／【請求種別】{conditions[5]}'
@@ -36,9 +37,10 @@ class xlsContorller():
         # 保存先ファイル名
         self.output_file_path = f'{self.OUTPUT_FILE_DIR_PATH}output_{now.strftime("%Y%m%d_%H%M%S")}.xlsx'
 
-    def writeCondition(self, conditions):
+    def writeCondition(self, user_id, conditions):
         # 収集条件
-        condition = editCollectionCondition(conditions)
+        condition = f"【実行ユーザ】{user_id}／"
+        condition += editCollectionCondition(conditions)
         self.ws.cell(row=1, column=5).value = condition
     
     def write(self, data):
