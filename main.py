@@ -40,7 +40,7 @@ def main():
             return
 
     # 収集開始メッセージ
-    startMessage = f'不動産請求情報収集を実行しますか？\n実行ユーザ【{user_id}】、パスワード【{password}】です。\n収集条件は以下の通りです。'
+    startMessage = f'不動産請求情報収集を実行しますか？\n実行ユーザはID番号【{user_id}】、パスワード【{password}】です。\n収集条件は以下の通りです。'
     for i, conditions in enumerate(conditions_list):
         startMessage += f'\n\n{i+1}：{xlsContorller.editCollectionCondition(conditions)}'
     print(startMessage)
