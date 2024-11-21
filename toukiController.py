@@ -71,7 +71,16 @@ def login(ctrller, userId, password):
     ctrller.wait_any_of(MAX_WAIT_TIME,
                         By.XPATH, '//*[@id="mainBox"]//span[text()="強制ログイン"]',
                         By.XPATH, '//*[@id="uketsukeMenuFrom"]//span[text()="不動産請求"]',
-                        By.XPATH, '//a/span[text()="不動産請求"]')
+                        By.XPATH, '//a/span[text()="不動産請求"]',
+                        By.XPATH, '//*[@id="errorMessageArea"]/ul/li/span')
+    
+    # ログインエラーのとき、例外発生
+    if ctrller.is_enabled(By.XPATH, '//*[@id="errorMessageArea"]/ul/li/span'):
+        error_message_login =ctrller.get_text(By.XPATH, '//*[@id="errorMessageArea"]/ul/li/span')
+        if "ID番号又はパスワードに誤りがあります。" in error_message_login:
+            raise Exception("ID番号又はパスワードに誤りがあります。")
+        else:
+            raise Exception(error_message_login)
     
     # 「強制ログイン」ボタンがあれば、クリック
     if ctrller.is_enabled(By.XPATH, '//*[@id="mainBox"]//span[text()="強制ログイン"]'):
@@ -85,8 +94,11 @@ def login(ctrller, userId, password):
 
 # ログアウト
 def logout(ctrller):
-    ctrller.click(By.XPATH, '//*[@id="CHeader"]//span[contains(text(),"ログアウト")]')
-    ctrller.wait(MAX_WAIT_TIME, By.XPATH, '//*[@id="mainBox"]//p[contains(text(),"ご利用ありがとうございました。")]')
+    # 「ログアウト」できるときにログアウトする
+    if ctrller.get_element_count(By.XPATH, '//*[@id="CHeader"]//span[contains(text(),"ログアウト")]') > 0:
+        # 「ログアウト」がクリッカブルでないときは「キャンセル」をクリックする ★ToDo★
+        ctrller.click(By.XPATH, '//*[@id="CHeader"]//span[contains(text(),"ログアウト")]')
+        ctrller.wait(MAX_WAIT_TIME, By.XPATH, '//*[@id="mainBox"]//p[contains(text(),"ご利用ありがとうございました。")]')
 
 # 収集条件チェック（収集条件）
 def checkConditions(conditions):
@@ -261,7 +273,10 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
                     print(errorMessage)
                     # 処理中断をExcelに出力
                     xlsCtr.save_with_exception()
-                    Message.MessageForefrontShowinfo(errorMessage)
+                    g_process_info['status'] = False
+                    g_process_info['message'] = errorMessage
+                    if g_isDisplayMessage:
+                        Message.MessageForefrontShowinfo(errorMessage)
                     # 「キャンセル」ボタンをクリック
                     ctrller.click(By.ID, 'cbnDlgBtnCancel')
                     return next_start_select_number
@@ -273,7 +288,12 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
                 continue
 
             # 検索結果なしの場合、正常扱い、処理継続
-            elif '指定した範囲内に登記情報がありません。指定範囲を変更して請求してください。' in errorText:
+            elif ('指定した範囲内に登記情報がありません。指定範囲を変更して請求してください。' in errorText):
+                # 「キャンセル」ボタンをクリック
+                ctrller.click(By.ID, 'cbnDlgBtnCancel')
+                return next_start_select_number
+            
+            elif ('請求できない所在です' in errorText): # ★ToDo★ OR条件で記載すること
                 # 「キャンセル」ボタンをクリック
                 ctrller.click(By.ID, 'cbnDlgBtnCancel')
                 return next_start_select_number
@@ -285,7 +305,10 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
                 print(errorMessage)
                 # 処理中断をExcelに出力
                 xlsCtr.save_with_exception()
-                Message.MessageForefrontShowinfo(errorMessage)
+                g_process_info['status'] = False
+                g_process_info['message'] = errorMessage
+                if g_isDisplayMessage:
+                    Message.MessageForefrontShowinfo(errorMessage)
                 # 「キャンセル」ボタンをクリック
                 ctrller.click(By.ID, 'cbnDlgBtnCancel')
                 return next_start_select_number
@@ -368,7 +391,7 @@ def dispalySearchResult(ctrller, xlsCtr):
         shozai     = ctrller.get_text(By.ID, f'shozai_{i}')
 
         # 図面一覧ボタンあり場合
-        if ctrller.is_enabled(By.ID, f'jiken_{i}'):
+        if ctrller.get_element_count(By.ID, f'jiken_{i}') == 1:
             # 「図面一覧」ボタンをクリック
             ctrller.click(By.ID, f'jiken_{i}')
 
@@ -415,15 +438,50 @@ def dispalySearchResult(ctrller, xlsCtr):
 
 
 import traceback
+g_isDisplayMessage = True # メッセージ表示=既定値：True
+# 収集処理状態
+g_process_info = {
+            'status'  : True, # True：正常終了／False：異常終了
+            'message' : None,
+            'html' : None,
+            'traceback' : None
+        }
+        
+# テスト用スタブ：データ収集（収集条件）異常終了
+def collectData_stab_abnormal(conditions, user_id, password, isDisplayMessage=True):
+    errorMessage  = f'収集条件：{xlsContorller.editCollectionCondition(conditions)}の収集処理にてエラーが発生しました。\n'
+    errorMessage += f'この処理を中断します。エラー対処後、再実行してください。'
+    g_process_info = {
+        'status'  : False, # True：正常終了／False：異常終了
+        'message' : errorMessage,
+        'html' : '<html>～</html>',
+        'traceback' : 'traceback'
+    }
+    # print(f'g_process_info={g_process_info}')
+    time.sleep(3)
+    return '.\output\output_20241115_163708.xlsx', g_process_info
+
+# テスト用スタブ：データ収集（収集条件）正常終了
+def collectData_stab(conditions, user_id, password, isDisplayMessage=True):
+    # print(f'g_process_info={g_process_info}')
+    time.sleep(3)
+    return '.\output\output_20241115_163708.xlsx', g_process_info
 
 # データ収集（収集条件）
-def collectData(conditions, user_id, password):
+def collectData(conditions, user_id, password, isDisplayMessage=True):
     ctrller = None
     xlsCtr = None
+    g_isDisplayMessage = isDisplayMessage
+    g_process_info = {
+            'status'  : True, # True：正常終了／False：異常終了
+            'message' : None,
+            'html' : None,
+            'traceback' : None
+        }
     try:
         # 収集条件のデータ出力
         xlsCtr = xlsContorller.xlsContorller()
-        xlsCtr.writeCondition(conditions)
+        xlsCtr.writeCondition(user_id, conditions)
         
         # ブラウザ起動
         ctrller = selenimuContorller.selenimuContorller()
@@ -488,26 +546,40 @@ def collectData(conditions, user_id, password):
         if xlsCtr != None:
             xlsCtr.save_with_exception()
 
-        # エラーメッセージ
-        errorMessage  = f'収集条件：{xlsContorller.editCollectionCondition(conditions)}の収集処理にてエラーが発生しました。\n'
-        errorMessage += f'この処理を中断します。エラー対処後、再実行してください。'
-        # 例外発生時のトレースバック、HTMLソース、画面スナップショットの出力
-        print(errorMessage)
-        
-        print(f"≫≫≫≫≫ トレースバック情報 ここから ≫≫≫≫≫\n")
-        print(f"{traceback.format_exc()}\n")
-        print(f"≪≪≪≪≪ トレースバック情報 ここまで ≪≪≪≪≪")
-        
-        if ctrller != None:
-            print(f"≫≫≫≫≫ HTMLソース ここから ≫≫≫≫≫\n")
-            print(f"{ctrller.driver.page_source}\n")
-            print(f"≪≪≪≪≪ HTMLソース ここまで ≪≪≪≪≪")
-            # スナップショット
-            ctrller.driver.set_window_size(1048, 1048)
-            ctrller.driver.get_screenshot_as_file(f".\\output\\snapshot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.png")
-        
+        # ログインエラーのとき
+        if 'ID番号又はパスワードに誤りがあります。' in f'{e}':
+            # エラーメッセージ
+            errorMessage  = f'ID番号又はパスワードに誤りがあります。'
+            print(errorMessage)
+
+        # それ以外のとき
+        else:
+            # エラーメッセージ
+            errorMessage  = f'収集条件：{xlsContorller.editCollectionCondition(conditions)}の収集処理にてエラーが発生しました。\n'
+            errorMessage += f'この処理を中断します。エラー対処後、再実行してください。'
+            print(errorMessage)
+
+            # 例外発生時のトレースバック、HTMLソース、画面スナップショットの出力           
+            print(f"≫≫≫≫≫ トレースバック情報 ここから ≫≫≫≫≫\n")
+            g_process_info['traceback'] = traceback.format_exc()
+            print(f"{traceback.format_exc()}\n")
+            print(f"≪≪≪≪≪ トレースバック情報 ここまで ≪≪≪≪≪")
+
+            if ctrller != None:
+                print(f"≫≫≫≫≫ HTMLソース ここから ≫≫≫≫≫\n")
+                g_process_info['html'] = ctrller.driver.page_source
+                print(f"{ctrller.driver.page_source}\n")
+                print(f"≪≪≪≪≪ HTMLソース ここまで ≪≪≪≪≪")
+
+                # スナップショット
+                ctrller.driver.set_window_size(1048, 1048)
+                ctrller.driver.get_screenshot_as_file(f".\\output\\snapshot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.png")
+            
         # エラーメッセージ表示
-        Message.MessageForefrontShowinfo(errorMessage)
+        g_process_info['status'] = False
+        g_process_info['message'] = errorMessage
+        if g_isDisplayMessage:
+            Message.MessageForefrontShowinfo(errorMessage)
 
     # ログアウト
     logout(ctrller)
@@ -516,4 +588,7 @@ def collectData(conditions, user_id, password):
     ctrller.close()
     
     # 収集結果ファイル名を返却
-    return xlsCtr.output_file_path
+    if isDisplayMessage:
+        return xlsCtr.output_file_path
+    else:
+        return xlsCtr.output_file_path, g_process_info
