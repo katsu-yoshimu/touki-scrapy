@@ -143,6 +143,50 @@
 
    - スクリプト実行中のブラウザは手動操作しないでください。このブラウザを非表示にすることも可能です。「selenimuContorller.py」のコメントアウトしている「# options.add_argument('--headless')」を「options.add_argument('--headless')」と変更して有効化してください。
 
+## exe化（メモレベル）
+
+1. exe作成
+
+pyinstaller main.py --onefile --clean
+cd dist
+rename main.exe touiki-scapy.exe
+
+2. その他の更新内容
+
+ - dist/Condition.xlsx を追加
+ - dist/outputにtemplate.xlsx を追加
+ - requirements.txt から streamlit を削除
+
+3. インストール方法
+
+コンソール画面を開いて、以下のコマンドを投入してみてください。
+-----
+git clone https://github.com/katsu-yoshimu/touki-scrapy.git
+-----
+「touki-scrapy」の下に「dist」ディレクトリが作成されます。
+「dist」ディレクトリには以下の構成でファイルがあります。
+
+dist
+  +- touki-scrapy.exe
+  +- Condition.xlsx
+  +- output
+      +- template.xlsx
+
+参照： https://github.com/katsu-yoshimu/touki-scrapy/tree/main/dist
+
+
+4. 実行方法
+
+「Condition.xlsx」を開いて「ID番号」、「パスワード」を記入して保存してください。
+その他の条件は適当なものに変更してください。
+
+その後「touki-scrapy.exe」をダブルクリックすると収集処理が実行できます。
+コンソール画面が自動的に開きます。
+その後はpythonスクリプトを実行したものと同様な動きになります。
+
+※強制ログインの別パターンは未対応です。
+
+
 ## ライセンス
 
 ライセンスは Apache2 License に準拠します。
