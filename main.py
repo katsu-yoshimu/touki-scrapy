@@ -28,7 +28,7 @@ def getConfigFromXlsx():
     chiban_to_def = ''
 
     # テンプレートxlsxを読込
-    wb = openpyxl.load_workbook(CONDITION_FILE_PATH)
+    wb = openpyxl.load_workbook(CONDITION_FILE_PATH, data_only=True)
 
     # シートを指定
     ws = wb[CONDITION_SHEET_NAME]
