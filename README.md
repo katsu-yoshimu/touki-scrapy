@@ -19,7 +19,8 @@
    ```cmd
    pyinstaller main.py --onefile --clean
    cd dist
-   rename main.exe touiki-scapy.exe
+   rename main.exe touki-scapy.exe
+   
    ```
 
 2. **その他の更新内容**
@@ -47,7 +48,7 @@
       +- template.xlsx
    ```
 
-   参照： https://github.com/katsu-yoshimu/touki-scrapy/tree/main/dist
+   参照： [github distディレクトリ構成](https://github.com/katsu-yoshimu/touki-scrapy/tree/main/dist)
 
 4. **実行方法**
 
