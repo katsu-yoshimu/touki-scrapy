@@ -21,7 +21,6 @@ def getConfigFromXlsx():
     }
 
     # デフォルト値の初期化
-    shozaiType_def = ''
     todofukenShozai_def = ''
     chibanKuiki_def = ''
     chiban_from_def = ''
@@ -44,16 +43,9 @@ def getConfigFromXlsx():
         config['password'] = ''
 
     for i in range(6, 16):
-
-        # 種別
-        shozaiType = ws.cell(row=i, column=3).value
-        if shozaiType == None:
-            shozaiType = shozaiType_def
-        else:
-            shozaiType_def = shozaiType
         
         # 都道府県名
-        todofukenShozai = ws.cell(row=i, column=4).value
+        todofukenShozai = ws.cell(row=i, column=3).value
         if todofukenShozai == None:
             todofukenShozai = todofukenShozai_def
         else:
@@ -61,14 +53,14 @@ def getConfigFromXlsx():
             todofukenShozai_def = todofukenShozai
 
         # 市町村名
-        chibanKuiki = ws.cell(row=i, column=5).value
+        chibanKuiki = ws.cell(row=i, column=4).value
         if chibanKuiki == None:
             chibanKuiki = chibanKuiki_def
         else:
             chibanKuiki_def = chibanKuiki
         
         # 地番・家屋番号 開始
-        chiban_from = ws.cell(row=i, column=6).value
+        chiban_from = ws.cell(row=i, column=5).value
         if chiban_from == None:
             chiban_from = chiban_from_def
         else:
@@ -83,17 +75,26 @@ def getConfigFromXlsx():
             chiban_to = str(chiban_to)
             chiban_to_def = chiban_to
 
-        seikyuJiko = []
-        # 請求種別 全部事項
-        if ws.cell(row=i, column=8).value == '〇':
-            seikyuJiko.append('全部事項')
-        # 請求種別 土地所在図/地積測量図
-        if ws.cell(row=i, column=9).value == '〇':
-            seikyuJiko.append('土地所在図/地積測量図')
-        # 請求種別 建物図面/各階平面図
-        if ws.cell(row=i, column=10).value == '〇':
-            seikyuJiko.append('建物図面/各階平面図')
-        
+        # 請求種別
+        seikyuJiko = ws.cell(row=i, column=7).value
+        if seikyuJiko == '土地の全部事項':
+            shozaiType = '土地'
+            seikyuJiko = ['全部事項']
+
+        elif seikyuJiko == '建物の全部事項':
+            shozaiType = '建物'
+            seikyuJiko = ['全部事項']
+
+        elif seikyuJiko == '土地所在図/地積測量図':
+            shozaiType = '土地'
+            seikyuJiko = ['土地所在図/地積測量図']
+
+        elif seikyuJiko == '建物図面/各階平面図':
+            shozaiType = '建物'
+            seikyuJiko = ['建物図面/各階平面図']
+        else:
+            seikyuJiko = []
+
         # 請求種別がある場合のみ処理対象
         if len(seikyuJiko) > 0:
             conditions = [
