@@ -12,10 +12,16 @@ class selenimuContorller():
     actionCount = 0
 
     INTERVAL_TIME=3 # リスクエス間隔は3秒に仮置き
+    INTERVAL_TIME_RATE=0.2
     last_processed_time = 0
 
-    def __init__(self):
+    def __init__(self, interval_time=3, interval_time_rate=0.2):
         self.actionlog(f'[open] ブラウザを開きます。')
+
+        self.INTERVAL_TIME = interval_time
+        self.INTERVAL_TIME_RATE = interval_time_rate
+        self.last_processed_time = time.time()
+
         # オプション指定
         options = webdriver.ChromeOptions()
         # options.add_argument('--headless')
@@ -85,7 +91,7 @@ class selenimuContorller():
         self.log(f'経過時間：{elapsed_time:.3f}秒')
         # 経過時間がリクエスト間隔よりも短い場合にリクエストを待ち合わせる
         if elapsed_time < self.INTERVAL_TIME:
-            sleep_time = (self.INTERVAL_TIME - elapsed_time) * random.uniform(0.8, 1.2)
+            sleep_time = (self.INTERVAL_TIME - elapsed_time) * random.uniform(1-self.INTERVAL_TIME_RATE, 1+self.INTERVAL_TIME_RATE)
             self.log(f'待機時間：{sleep_time:.3f}秒')
             time.sleep(sleep_time)
         self.last_processed_time = time.time()
