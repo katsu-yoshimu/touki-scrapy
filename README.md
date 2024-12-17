@@ -19,7 +19,7 @@
    ```cmd
    pyinstaller main.py --onefile --clean
    cd dist
-   rename main.exe touki-scapy.exe
+   rename main.exe touki-scrapy.exe
    
    ```
 
