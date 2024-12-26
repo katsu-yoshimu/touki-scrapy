@@ -1,4 +1,3 @@
-jpholiday
 selenium
 openpyxl
 plyer
