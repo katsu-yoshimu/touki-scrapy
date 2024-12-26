@@ -11,40 +11,6 @@ MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
 CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
 CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
 
-# 実行時間確認
-#（1）土曜日及び日曜日並びに国民の祝日に関する法律（昭和23年法律第178号）に規定する休日（以下「休日」といいます。）を除いた日
-#   午前8時30分から午後11時までの間（地図及び図面については午前8時30分から午後9時までの間）
-#（2）土曜日及び日曜日並びに休日
-#   午前8時30分から午後6時までの間（地図及び図面を除きます。） ＝ 終日実行できない
-import jpholiday
-import locale
-locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
-
-
-def is_RunEnable(date):
-    # 祝日は実行不可
-    if jpholiday.is_holiday(date):
-        print('祝日は実行不可')
-        return False
-    # 土は実行不可
-    if date.weekday() == 5:
-        print('# 土は実行不可')
-        return False
-    # 日は実行不可
-    if date.weekday() == 6:
-        print('日は実行不可')
-        return False
-    #  午前8時30分以前は実行不可
-    if int(date.strftime('%H')) <= 8 and int(date.strftime('%M')) <= 30:
-        print('午前8時30分以前は実行不可')
-        return False
-    #  午後9時以降は実行不可
-    if int(date.strftime('%H')) >= 21:
-        print('午後9時以降は実行不可')
-        return False
-    
-    return True
-
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait

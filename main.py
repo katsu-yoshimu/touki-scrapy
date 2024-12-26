@@ -122,13 +122,6 @@ def main():
     user_id = config['user_id']
     password = config['password']
     conditions_list = config['conditions_list']
-
-    # 実行時間確認
-    if toukiController.is_RunEnable(datetime.now()) == False:
-        errorMessage = f'現在は{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}です。実行時間外です。\n平日8時30分～21時0分に実行してください。'
-        print(errorMessage)
-        Message.MessageForefrontShowinfo(errorMessage)
-        return
     
     # 収集条件チェック(収集条件) 
     for conditions in conditions_list:
@@ -148,10 +141,17 @@ def main():
         return
     
     # データ収集
-    for conditions in conditions_list:
+    import ProcessStatus
+    ps = ProcessStatus.ProcessStatus()
+    p_count = len(conditions_list)
+    for i, conditions in enumerate(conditions_list):
+        status = f"{i+1}/{p_count}"
+        ps.showStatus(status)
         output_file_path = toukiController.collectData(conditions, user_id, password)
         # 処理終了時のメッセージ表示のため、出力ファイル名を追記
         output_file_list.append(output_file_path)
+    ps.close()
+
     
     # 収集終了メッセージ
     endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
