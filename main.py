@@ -122,13 +122,6 @@ def main():
     user_id = config['user_id']
     password = config['password']
     conditions_list = config['conditions_list']
-
-    # 実行時間確認
-    if toukiController.is_RunEnable(datetime.now()) == False:
-        errorMessage = f'現在は{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}です。実行時間外です。\n平日8時30分～21時0分に実行してください。'
-        print(errorMessage)
-        Message.MessageForefrontShowinfo(errorMessage)
-        return
     
     # 収集条件チェック(収集条件) 
     for conditions in conditions_list:
