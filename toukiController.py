@@ -69,7 +69,7 @@ def logout(ctrller):
 # 収集条件チェック（収集条件）
 def checkConditions(conditions):
     # 例）【土地/建物】土地／【都道府県番号】32／【市町村名】松江市東奥谷町／【地番・家屋番号】380～389／【seikyuJiko】全部事項
-    if len(conditions) != 6:
+    if len(conditions) != 7:
         print(f'収集条件[{conditions}]の個数[{len(conditions)}]に過不足がある。正しくは6個')
         return False
     shozaiType = conditions[0]
@@ -114,13 +114,17 @@ def checkConditions(conditions):
     for seikyuJiko in seikyuJiko_list:
         if not(seikyuJiko == '全部事項' or 
                seikyuJiko == '土地所在図/地積測量図' or 
+               seikyuJiko == '地役権図面' or 
                seikyuJiko == '建物図面/各階平面図'):
-            print(f'収集条件の請求種別[{seikyuJiko}]が「全部事項」「土地所在図/地積測量図」「建物図面/各階平面図」でない')
+            print(f'収集条件の請求種別[{seikyuJiko}]が「全部事項」「土地所在図/地積測量図」「地役権図面」「建物図面/各階平面図」でない')
             return False
         if shozaiType == '土地' and seikyuJiko == '建物図面/各階平面図':
             print(f'収集条件の種別[{shozaiType}]には請求種別[{seikyuJiko}]は指定できない')
             return False
         if shozaiType == '建物' and seikyuJiko == '土地所在図/地積測量図':
+            print(f'収集条件の種別[{shozaiType}]には請求種別[{seikyuJiko}]は指定できない')
+            return False
+        if shozaiType == '建物' and seikyuJiko == '地役権図面':
             print(f'収集条件の種別[{shozaiType}]には請求種別[{seikyuJiko}]は指定できない')
             return False
     return True

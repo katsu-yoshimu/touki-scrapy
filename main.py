@@ -5,114 +5,15 @@ from datetime import datetime
 
 output_file_list = []
 
-# Excel版設定ファイル読込
-import openpyxl
-from preflist import PREF_CODE
+# 設定ファイル読込
+import getConfig
 
-def getConfigFromXlsx():
-    CONDITION_FILE_PATH = './Condition.xlsx'
-    CONDITION_SHEET_NAME = '収集条件'
-
-    # 返却値の初期化
-    config = {
-        "user_id"  : None,
-        "password" : None,
-        "conditions_list" : []
-    }
-
-    # デフォルト値の初期化
-    todofukenShozai_def = ''
-    chibanKuiki_def = ''
-    chiban_from_def = ''
-    chiban_to_def = ''
-
-    # テンプレートxlsxを読込
-    wb = openpyxl.load_workbook(CONDITION_FILE_PATH, data_only=True)
-
-    # シートを指定
-    ws = wb[CONDITION_SHEET_NAME]
-
-    # ID番号
-    config['user_id'] = ws.cell(row=2, column=4).value
-    if config['user_id'] == None:
-        config['user_id'] = ''
-
-    # パスワード
-    config['password'] = ws.cell(row=3, column=4).value
-    if config['password'] == None:
-        config['password'] = ''
-
-    for i in range(6, 16):
-        
-        # 都道府県名
-        todofukenShozai = ws.cell(row=i, column=3).value
-        if todofukenShozai == None:
-            todofukenShozai = todofukenShozai_def
-        else:
-            todofukenShozai = PREF_CODE[todofukenShozai]
-            todofukenShozai_def = todofukenShozai
-
-        # 市町村名
-        chibanKuiki = ws.cell(row=i, column=4).value
-        if chibanKuiki == None:
-            chibanKuiki = chibanKuiki_def
-        else:
-            chibanKuiki_def = chibanKuiki
-        
-        # 地番・家屋番号 開始
-        chiban_from = ws.cell(row=i, column=5).value
-        if chiban_from == None:
-            chiban_from = chiban_from_def
-        else:
-            chiban_from = str(chiban_from)
-            chiban_from_def = chiban_from
-
-        # 地番・家屋番号 終了
-        chiban_to = ws.cell(row=i, column=6).value
-        if chiban_to == None:
-            chiban_to = chiban_to_def
-        else:
-            chiban_to = str(chiban_to)
-            chiban_to_def = chiban_to
-
-        # 請求種別
-        seikyuJiko = ws.cell(row=i, column=7).value
-        if seikyuJiko == '土地の全部事項':
-            shozaiType = '土地'
-            seikyuJiko = ['全部事項']
-
-        elif seikyuJiko == '建物の全部事項':
-            shozaiType = '建物'
-            seikyuJiko = ['全部事項']
-
-        elif seikyuJiko == '土地所在図/地積測量図':
-            shozaiType = '土地'
-            seikyuJiko = ['土地所在図/地積測量図']
-
-        elif seikyuJiko == '建物図面/各階平面図':
-            shozaiType = '建物'
-            seikyuJiko = ['建物図面/各階平面図']
-        else:
-            seikyuJiko = []
-
-        # 請求種別がある場合のみ処理対象
-        if len(seikyuJiko) > 0:
-            conditions = [
-                shozaiType,
-                todofukenShozai,
-                chibanKuiki,
-                chiban_from,
-                chiban_to,
-                seikyuJiko
-            ]
-            config['conditions_list'].append(conditions)
-    return config
 
 def main():
     # 設定ファイル読込
     config = None
     try:
-        config = getConfigFromXlsx()
+        config = getConfig.getConfigFromXlsx()
     except Exception as e:
         errorMessage=f'設定ファイルの読み込みでエラーが発生しました。\nエラー内容[{e}]'
         print(errorMessage)
@@ -136,6 +37,8 @@ def main():
     startMessage = f'不動産請求情報収集を実行しますか？\n実行ユーザはID番号【{user_id}】、パスワード【{password}】です。\n収集条件は以下の通りです。'
     for i, conditions in enumerate(conditions_list):
         startMessage += f'\n\n{i+1}：{xlsContorller.editCollectionCondition(conditions)}'
+        if conditions[6] == True:
+            startMessage += f'\n\n★注意★ {i+1}：地番・家屋番号の選択のみで処理を終了します。'
     print(startMessage)
     if Message.MessageForefront(startMessage) == False:
         return
