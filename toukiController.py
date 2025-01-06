@@ -468,7 +468,7 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         MAX_CHIBAN_INTERVAL      = setting["toukiController.MAX_CHIBAN_INTERVAL"]
         print(json.dumps(setting, indent=4, ensure_ascii=False))
 
-    # ctrller = None
+    ctrller = None
     xlsCtr = None
     g_isDisplayMessage = isDisplayMessage
     g_process_info = {
