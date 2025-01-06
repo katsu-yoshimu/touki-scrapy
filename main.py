@@ -49,21 +49,37 @@ def main():
     import ProcessStatus
     ps = ProcessStatus.ProcessStatus(setting)
     p_count = len(conditions_list)
+    output_file_path = ""
     for i, conditions in enumerate(conditions_list):
         status = f"{i+1}/{p_count}"
         ps.showStatus(status)
         output_file_path = toukiController.collectData(conditions, user_id, password, setting)
         # 処理終了時のメッセージ表示のため、出力ファイル名を追記 ToDo:選択のみのとき、ファイル名の返却なしを考慮
-        output_file_list.append(output_file_path)
+        if output_file_path != "":
+            output_file_list.append(output_file_path)
     ps.close()
 
     
-    # 収集終了メッセージ  ToDo:選択のみのとき、中断するため、終了メッセージを変更する
-    endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
-    for i, output_file in enumerate(output_file_list):
-        endMessage += f'\n{i+1}：【{output_file}】'
-    print(endMessage)
-    Message.MessageForefrontShowinfo(endMessage)
+    # 収集終了メッセージ
+    if output_file_path != "":
+        # 選択のみがない場合
+        endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
+        for i, output_file in enumerate(output_file_list):
+            endMessage += f'\n{i+1}：【{output_file}】'
+        print(endMessage)
+        Message.MessageForefrontShowinfo(endMessage)
+    else:
+        # 選択のみの場合
+        if len(conditions_list) == 1:
+            endMessage = '不動産請求情報収集が処理終了しました。\n地番・家屋番号の選択状態で処理を終了しました。ご確認ください。'
+            Message.MessageForefrontShowinfo(endMessage)
+        else:
+        # 選択のみがあるがファイル出力もある場合
+            endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
+            for i, output_file in enumerate(output_file_list):
+                endMessage += f'\n{i+1}：【{output_file}】'
+            print(endMessage)
+            Message.MessageForefrontShowinfo(endMessage)
             
 
 import os
@@ -74,4 +90,10 @@ os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 main()
 
 # 終了時に自動的にコンソールを消さない
-input("\n≪≪≪≪≪ コンソールを消すためには、「Enter」キーを押してください ≫≫≫≫≫\n")
+endMessage = '''
+≪≪≪≪≪ コンソールを消すためには、「Enter」キーを押してください       ≫≫≫≫≫
+≪≪≪≪≪ ★注意★：地番・家屋番号の選択のみを選択した場合は、          ≫≫≫≫≫
+≪≪≪≪≪       「Enter」キーを押すとブラウザが閉じられます            ≫≫≫≫≫
+≪≪≪≪≪       「Enter」キーを押す前に必要なブラウザ操作を実行ください ≫≫≫≫≫
+'''
+input(endMessage)

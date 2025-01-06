@@ -5,11 +5,11 @@ import time
 from datetime import datetime
 import Message
 
-# MAX_CHIBAN_SELECT_NUMBER = 50
-# MAX_CHIBAN_INTERVAL = 10
-# MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
-# CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
-# CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
+MAX_CHIBAN_SELECT_NUMBER = 50
+MAX_CHIBAN_INTERVAL = 10
+MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
+CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
+CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
 
 from selenium.webdriver.common.by import By
 from selenium import webdriver
@@ -188,12 +188,14 @@ def enterCondition(ctrller, conditions):
         if ctrller.driver.find_element(By.ID, seikyuJiko_ID).is_selected() == True:
             ctrller.click(By.ID, seikyuJiko_ID)
 
-    # 「請求種別」の選択  ToDo:「地役権図面」を追加
+    # 「請求種別」の選択
     for seikyuJiko in seikyuJiko_list:
         if seikyuJiko == "全部事項":
             ctrller.click(By.ID, 'fuAll')
         if seikyuJiko == "土地所在図/地積測量図":
             ctrller.click(By.ID, 'fuShozai')
+        if seikyuJiko == "地役権図面":
+            ctrller.click(By.ID, 'fuChieki')
         if seikyuJiko == "建物図面/各階平面図":
             ctrller.click(By.ID, 'fuZumen')
 
@@ -256,7 +258,8 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to, s
                     errorMessage += f'{CHIBAN_RETRY_OUT_COUNT}回連続して検索エラーとなりました。\n処理を中断します。'
                     print(errorMessage)
                     # 処理中断をExcelに出力
-                    xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
+                    if xlsCtr != None:
+                        xlsCtr.save_with_exception()  # 選択のみの場合は実施しない
                     g_process_info['status'] = False
                     g_process_info['message'] = errorMessage
                     if g_isDisplayMessage:
@@ -288,7 +291,8 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to, s
                 errorMessage = '処理を中断します。'
                 print(errorMessage)
                 # 処理中断をExcelに出力
-                xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
+                if xlsCtr != None:
+                    xlsCtr.save_with_exception()  # 選択のみの場合は実施しない
                 g_process_info['status'] = False
                 g_process_info['message'] = errorMessage
                 if g_isDisplayMessage:
@@ -402,15 +406,17 @@ def dispalySearchResult(ctrller, xlsCtr, setting=None):
             if cnt_zumen > 0:
                 for data_zumen in data_zumen_list:
                     # 不動産請求明細＋図面情報データ出力
-                    xlsCtr.writeZumen(seikyuJiko, shozaiType, shozai,
+                    if xlsCtr != None:
+                        xlsCtr.writeZumen(seikyuJiko, shozaiType, shozai,
                                       data_zumen['登録年月日'], 
                                       data_zumen['事件ID'], 
                                       data_zumen['所在及び地番・家屋番号（事件前物件）'], 
-                                      data_zumen['所在及び地番・家屋番号（事件後物件）'] )  # ToDo：選択のみの場合は実施しない
+                                      data_zumen['所在及び地番・家屋番号（事件後物件）'] ) 
             else:
                 # 不動産請求明細＋図面なしの理由のデータ出力
                 reasonZumenNashi = ctrller.get_text(By.XPATH, '//*[@id="jkDlgErrMsgArea"]/ul/li[1]')
-                xlsCtr.writeZemenNasi(seikyuJiko, shozaiType, shozai, reasonZumenNashi)  # ToDo：選択のみの場合は実施しない
+                if xlsCtr != None:
+                    xlsCtr.writeZemenNasi(seikyuJiko, shozaiType, shozai, reasonZumenNashi)
 
             # 「キャンセル」ボタンをクリックし、「不動産請求一覧」画面に戻る
             ctrller.click(By.ID, 'jkDlgBtnCancel')
@@ -418,7 +424,8 @@ def dispalySearchResult(ctrller, xlsCtr, setting=None):
         # 図面一覧ボタンなし場合
         else:
             # 不動産請求明細データ出力
-            xlsCtr.writeFudousan(seikyuJiko, shozaiType, shozai)  # ToDo：選択のみの場合は実施しない
+            if xlsCtr != None:
+                xlsCtr.writeFudousan(seikyuJiko, shozaiType, shozai)
 
         # 次の行
         i += 1
@@ -461,7 +468,7 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         MAX_CHIBAN_INTERVAL      = setting["toukiController.MAX_CHIBAN_INTERVAL"]
         print(json.dumps(setting, indent=4, ensure_ascii=False))
 
-    ctrller = None
+    # ctrller = None
     xlsCtr = None
     g_isDisplayMessage = isDisplayMessage
     g_process_info = {
@@ -472,9 +479,10 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         }
 
     try:
-        # 収集条件のデータ出力
-        xlsCtr = xlsContorller.xlsContorller()  # ToDo：選択のみの場合は実施しない
-        xlsCtr.writeCondition(user_id, conditions)  # ToDo：選択のみの場合は実施しない
+        # 収集条件のデータ出力、選択のみの場合は実施しない
+        if (conditions[6] == False):
+            xlsCtr = xlsContorller.xlsContorller()      
+            xlsCtr.writeCondition(user_id, conditions)
         
         # ブラウザ起動
         if setting != None:
@@ -516,7 +524,11 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
                 # 地番・家屋番号をMAX50件ごと選択する
                 next_start_select_number = selectChiban(ctrller, xlsCtr, start_select_number, conditions_division[3], conditions_division[4], setting)
                 start_select_number = next_start_select_number
-                # ToDo：選択のみの場合はここで、「共同担保目録」を「要」に選択して、処理終了する
+
+                # 選択のみの場合は、 「共同担保目録」を「要」に選択して、処理終了する
+                if (conditions[6] == True):
+                    ctrller.click(By.ID, 'fuKyodoTanpoYES')
+                    return ""
 
                 # 地番・家屋番号の選択なし
                 if start_select_number < 0:
@@ -529,7 +541,8 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
                 dispalySearchResult(ctrller, xlsCtr, setting)
 
                 # データセーブ
-                xlsCtr.save()  # ToDo：選択のみの場合は実施しない
+                if xlsCtr != None:
+                    xlsCtr.save()
 
                 # 「戻る」ボタンをクリック
                 ctrller.click(By.XPATH, '//span[contains(text(),"戻る")]')
@@ -539,12 +552,13 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
                     break
 
         # データセーブ
-        xlsCtr.save()     # ToDo：選択のみの場合は実施しない
+        if xlsCtr != None:
+            xlsCtr.save()
         
     except Exception as e:
         # エラー発生をExcelに出力
         if xlsCtr != None:
-            xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
+            xlsCtr.save_with_exception()
 
         # ログインエラーのとき
         if 'ID番号又はパスワードに誤りがあります。' in f'{e}':
@@ -588,7 +602,10 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
     ctrller.close()
     
     # 収集結果ファイル名を返却
+    output_file_path = ""
+    if xlsCtr != None:
+        output_file_path = xlsCtr.output_file_path
     if isDisplayMessage:
-        return xlsCtr.output_file_path  # ToDo：選択のみの場合は実施しない
+        return output_file_path
     else:
-        return xlsCtr.output_file_path, g_process_info  # ToDo：選択のみの場合は実施しない
+        return output_file_path, g_process_info
