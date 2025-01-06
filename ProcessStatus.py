@@ -21,25 +21,38 @@ def openWindow():
 
 class ProcessStatus():
     driver = ""
-    
-    def __init__(self):
-        self.driver = openWindow()
+    IS_NOTIFY_WINDOWS = 1
+    IS_NOTIFY_BROWSER = 1
+
+    def __init__(self, setting=None):
+        if setting != None:
+            self.IS_NOTIFY_WINDOWS = setting["ProcessStatus.IS_NOTIFY_WINDOWS"]
+            self.IS_NOTIFY_BROWSER = setting["ProcessStatus.IS_NOTIFY_BROWSER"]
+        
+        if self.IS_NOTIFY_BROWSER == 1:
+            self.driver = openWindow()
     
     def showStatus(self, message):
         try:
-            notification.notify(
-                    title = "不動産請求情報収集",
-                    message = f"{message}番目のスクリプト稼働中です。\nしばらくお待ちください。",
-                    app_name = "不動産請求情報収集"
-                )
-            script = f"document.getElementById(\"message\").innerText='{message}';"
-            self.driver.execute_script(script)
+            if self.IS_NOTIFY_WINDOWS == 1:
+                notification.notify(
+                        title = "不動産請求情報収集",
+                        message = f"{message}番目のスクリプト稼働中です。\nしばらくお待ちください。",
+                        app_name = "不動産請求情報収集"
+                    )
+            
+            if self.IS_NOTIFY_BROWSER == 1:
+                script = f"document.getElementById(\"message\").innerText='{message}';"
+                self.driver.execute_script(script)
+
         except Exception as e:
-            self.driver = openWindow()
-            self.driver.execute_script(script)
+            if self.IS_NOTIFY_BROWSER == 1:
+                self.driver = openWindow()
+                self.driver.execute_script(script)
         
     def close(self):
         try:
-            self.driver.quit()
+            if self.IS_NOTIFY_BROWSER == 1:
+                self.driver.quit()
         except Exception as e:
             pass

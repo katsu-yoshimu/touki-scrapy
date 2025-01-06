@@ -2,10 +2,9 @@
 import openpyxl
 from preflist import PREF_CODE
 
-def getConfigFromXlsx():
-    CONDITION_FILE_PATH = './Condition.xlsm'
-    CONDITION_SHEET_NAME = '収集条件'
-    SETTING_SHEET_NAME = "設定値"
+def getConditionFromXls():
+    CONDITION_FILE_PATH = "./Condition.xlsm"
+    CONDITION_SHEET_NAME = "収集条件"
 
     # 返却値の初期化
     config = {
@@ -15,10 +14,10 @@ def getConfigFromXlsx():
     }
 
     # デフォルト値の初期化
-    todofukenShozai_def = ''
-    chibanKuiki_def = ''
-    chiban_from_def = ''
-    chiban_to_def = ''
+    todofukenShozai_def = ""
+    chibanKuiki_def = ""
+    chiban_from_def = ""
+    chiban_to_def = ""
 
     # Condition.xlsmを読込
     wb = openpyxl.load_workbook(CONDITION_FILE_PATH, data_only=True)
@@ -27,14 +26,14 @@ def getConfigFromXlsx():
     ws = wb[CONDITION_SHEET_NAME]
 
     # ID番号
-    config['user_id'] = ws.cell(row=2, column=4).value
-    if config['user_id'] == None:
-        config['user_id'] = ''
+    config["user_id"] = ws.cell(row=2, column=4).value
+    if config["user_id"] == None:
+        config["user_id"] = ""
 
     # パスワード
-    config['password'] = ws.cell(row=3, column=4).value
-    if config['password'] == None:
-        config['password'] = ''
+    config["password"] = ws.cell(row=3, column=4).value
+    if config["password"] == None:
+        config["password"] = ""
 
     for i in range(6, 16):
         
@@ -86,26 +85,26 @@ def getConfigFromXlsx():
 
             # 7カラムから11カラムの一番左にチェックありに従う
             if ws.cell(row=i, column=7).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['全部事項']
+                shozaiType = "土地"
+                seikyuJiko = ["全部事項"]
             elif ws.cell(row=i, column=8).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['土地所在図/地積測量図']
+                shozaiType = "土地"
+                seikyuJiko = ["土地所在図/地積測量図"]
             elif ws.cell(row=i, column=9).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['地役権図面']
+                shozaiType = "土地"
+                seikyuJiko = ["地役権図面"]
             elif ws.cell(row=i, column=10).value == True:
-                shozaiType = '建物'
-                seikyuJiko = ['全部事項']
+                shozaiType = "建物"
+                seikyuJiko = ["全部事項"]
             elif ws.cell(row=i, column=11).value == True:
-                shozaiType = '建物'
-                seikyuJiko = ['建物図面/各階平面図']
+                shozaiType = "建物"
+                seikyuJiko = ["建物図面/各階平面図"]
             # 7カラムから11カラムのいずれもチェックなしのときは、7カラムがチェックされているものとして扱う
             else:
-                shozaiType = '土地'
-                seikyuJiko = ['全部事項']
+                shozaiType = "土地"
+                seikyuJiko = ["全部事項"]
 
-            config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
 
             # 12カラムにチェックありのときは、以降の行は無効行
             break
@@ -115,82 +114,97 @@ def getConfigFromXlsx():
             select_only = False
             
             if ws.cell(row=i, column=7).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['全部事項']
-                config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+                shozaiType = "土地"
+                seikyuJiko = ["全部事項"]
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
             if ws.cell(row=i, column=8).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['土地所在図/地積測量図']
-                config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+                shozaiType = "土地"
+                seikyuJiko = ["土地所在図/地積測量図"]
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
             if ws.cell(row=i, column=9).value == True:
-                shozaiType = '土地'
-                seikyuJiko = ['地役権図面']
-                config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+                shozaiType = "土地"
+                seikyuJiko = ["地役権図面"]
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
             if ws.cell(row=i, column=10).value == True:
-                shozaiType = '建物'
-                seikyuJiko = ['全部事項']
-                config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+                shozaiType = "建物"
+                seikyuJiko = ["全部事項"]
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
             if ws.cell(row=i, column=11).value == True:
-                shozaiType = '建物'
-                seikyuJiko = ['建物図面/各階平面図']
-                config['conditions_list'].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+                shozaiType = "建物"
+                seikyuJiko = ["建物図面/各階平面図"]
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+
+    
+    wb.close()
+
+    return config
+
+def getSettingFromXls():
+    CONDITION_FILE_PATH = "./Condition.xlsm"
+    SETTING_SHEET_NAME = "設定値"
+
+    # 返却値の初期化
+    config = {}
+
+    # Condition.xlsmを読込
+    wb = openpyxl.load_workbook(CONDITION_FILE_PATH, data_only=True)
 
     # 設定値の読込＆設定
     ws = wb[SETTING_SHEET_NAME]
-    config['MAX_CHIBAN_SELECT_NUMBER'] = ws.cell(row=3, column=5).value
-    config['MAX_CHIBAN_INTERVAL']      = ws.cell(row=4, column=5).value
-    config['MAX_WAIT_TIME']            = ws.cell(row=5, column=5).value
-    config['CHIBAN_RETRY_WAIT_TIME']   = ws.cell(row=6, column=5).value
-    config['CHIBAN_RETRY_OUT_COUNT']   = ws.cell(row=7, column=5).value
-    config['INTERVAL_TIME']            = ws.cell(row=8, column=5).value
-    config['INTERVAL_TIME_RATE']       = ws.cell(row=9, column=5).value
-    config['IS_NOTIFY_WINDOWS']        = ws.cell(row=10, column=5).value
-    config['IS_NOTIFY_BROWSER']        = ws.cell(row=11, column=5).value
+    config["toukiController.MAX_CHIBAN_SELECT_NUMBER"] = ws.cell(row=3, column=5).value
+    config["toukiController.MAX_CHIBAN_INTERVAL"]      = ws.cell(row=4, column=5).value
+    config["toukiController.MAX_WAIT_TIME"]            = ws.cell(row=5, column=5).value
+    config["toukiController.CHIBAN_RETRY_WAIT_TIME"]   = ws.cell(row=6, column=5).value
+    config["toukiController.CHIBAN_RETRY_OUT_COUNT"]   = ws.cell(row=7, column=5).value
+    config["selenimuContorller.INTERVAL_TIME"]            = ws.cell(row=8, column=5).value
+    config["selenimuContorller.INTERVAL_TIME_RATE"]       = ws.cell(row=9, column=5).value
+    config["ProcessStatus.IS_NOTIFY_WINDOWS"]        = ws.cell(row=10, column=5).value
+    config["ProcessStatus.IS_NOTIFY_BROWSER"]        = ws.cell(row=11, column=5).value
     
     # 設定値の妥当性チェック
-    if int != type(config["MAX_CHIBAN_SELECT_NUMBER"]):
+    if int != type(config["toukiController.MAX_CHIBAN_SELECT_NUMBER"]):
         raise Exception("設定値：MAX_CHIBAN_SELECT_NUMBERの値は、1以上の整数を指定してください")
-    elif config["MAX_CHIBAN_SELECT_NUMBER"] < 1:
+    elif config["toukiController.MAX_CHIBAN_SELECT_NUMBER"] < 1:
         raise Exception("設定値：MAX_CHIBAN_SELECT_NUMBERの値は、1以上の整数を指定してください")
     
-    if int != type(config["MAX_CHIBAN_INTERVAL"]):
+    if int != type(config["toukiController.MAX_CHIBAN_INTERVAL"]):
         raise Exception("設定値：MAX_CHIBAN_INTERVALの値は、1以上の整数を指定してください")
-    elif config["MAX_CHIBAN_INTERVAL"] < 1:
+    elif config["toukiController.MAX_CHIBAN_INTERVAL"] < 1:
         raise Exception("設定値：MAX_CHIBAN_INTERVALの値は、1以上の整数を指定してください")
     
-    if int != type(config["MAX_WAIT_TIME"]):
+    if int != type(config["toukiController.MAX_WAIT_TIME"]):
         raise Exception("設定値：MAX_WAIT_TIMEの値は、1以上の整数を指定してください")
-    elif config["MAX_WAIT_TIME"] < 1:
+    elif config["toukiController.MAX_WAIT_TIME"] < 1:
         raise Exception("設定値：MAX_WAIT_TIMEの値は、1以上の整数を指定してください")
     
-    if int != type(config["CHIBAN_RETRY_WAIT_TIME"]):
+    if int != type(config["toukiController.CHIBAN_RETRY_WAIT_TIME"]):
         raise Exception("設定値：CHIBAN_RETRY_WAIT_TIMEの値は、1以上の整数を指定してください")
-    elif config["CHIBAN_RETRY_WAIT_TIME"] < 1:
+    elif config["toukiController.CHIBAN_RETRY_WAIT_TIME"] < 1:
         raise Exception("設定値：CHIBAN_RETRY_WAIT_TIMEの値は、1以上の整数を指定してください")
 
-    if int != type(config["CHIBAN_RETRY_OUT_COUNT"]):
+    if int != type(config["toukiController.CHIBAN_RETRY_OUT_COUNT"]):
         raise Exception("設定値：CHIBAN_RETRY_OUT_COUNTの値は、1以上の整数を指定してください")
-    elif config["CHIBAN_RETRY_OUT_COUNT"] < 1:
+    elif config["toukiController.CHIBAN_RETRY_OUT_COUNT"] < 1:
         raise Exception("設定値：CHIBAN_RETRY_OUT_COUNTの値は、1以上の整数を指定してください")
 
-    if int != type(config["INTERVAL_TIME"]):
+    if int != type(config["selenimuContorller.INTERVAL_TIME"]):
         raise Exception("設定値：INTERVAL_TIMEの値は、1以上の整数を指定してください")
-    elif config["INTERVAL_TIME"] < 1:
+    elif config["selenimuContorller.INTERVAL_TIME"] < 1:
         raise Exception("設定値：INTERVAL_TIMEの値は、1以上の整数を指定してください")
     
-    if int != type(config["INTERVAL_TIME_RATE"]) and float != type(config["INTERVAL_TIME_RATE"]):
+    if int != type(config["selenimuContorller.INTERVAL_TIME_RATE"]) and float != type(config["selenimuContorller.INTERVAL_TIME_RATE"]):
         raise Exception("設定値：INTERVAL_TIME_RATEの値は、0.0～1.0の小数を指定してください")
-    elif config["INTERVAL_TIME_RATE"] < 0.0 or config["INTERVAL_TIME_RATE"] > 1.0:
+    elif config["selenimuContorller.INTERVAL_TIME_RATE"] < 0.0 or config["selenimuContorller.INTERVAL_TIME_RATE"] > 1.0:
         raise Exception("設定値：INTERVAL_TIME_RATEの値は、0.0～1.0の小数を指定してください")
 
-    if int != type(config["IS_NOTIFY_WINDOWS"]):
+    if int != type(config["ProcessStatus.IS_NOTIFY_WINDOWS"]):
         raise Exception("設定値：IS_NOTIFY_WINDOWSの値は、0：通知なし、または、1：通知ありを指定してください")
-    elif config["IS_NOTIFY_WINDOWS"] != 0 and config["IS_NOTIFY_WINDOWS"] != 1:
+    elif config["ProcessStatus.IS_NOTIFY_WINDOWS"] != 0 and config["ProcessStatus.IS_NOTIFY_WINDOWS"] != 1:
         raise Exception("設定値：IS_NOTIFY_WINDOWSの値は、0：通知なし、または、1：通知ありを指定してください")
     
-    if int != type(config["IS_NOTIFY_BROWSER"]):
+    if int != type(config["ProcessStatus.IS_NOTIFY_BROWSER"]):
         raise Exception("設定値：IS_NOTIFY_BROWSERの値は、0：通知なし、または、1：通知ありを指定してください")
-    elif config["IS_NOTIFY_BROWSER"] != 0 and config["IS_NOTIFY_BROWSER"] != 1:
+    elif config["ProcessStatus.IS_NOTIFY_BROWSER"] != 0 and config["ProcessStatus.IS_NOTIFY_BROWSER"] != 1:
         raise Exception("設定値：IS_NOTIFY_BROWSERの値は、0：通知なし、または、1：通知ありを指定してください")
     
     wb.close()

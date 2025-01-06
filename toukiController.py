@@ -5,11 +5,11 @@ import time
 from datetime import datetime
 import Message
 
-MAX_CHIBAN_SELECT_NUMBER = 50
-MAX_CHIBAN_INTERVAL = 10
-MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
-CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
-CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
+# MAX_CHIBAN_SELECT_NUMBER = 50
+# MAX_CHIBAN_INTERVAL = 10
+# MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
+# CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
+# CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
 
 from selenium.webdriver.common.by import By
 from selenium import webdriver
@@ -17,7 +17,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 # ログイン
-def login(ctrller, userId, password):
+def login(ctrller, userId, password, setting=None):
+    if setting != None:
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+    
     # ログイン画面表示
     ctrller.getUrl('https://www.touki.or.jp/TeikyoUketsuke/')
 
@@ -59,7 +62,10 @@ def login(ctrller, userId, password):
                         )
 
 # ログアウト
-def logout(ctrller):
+def logout(ctrller, setting=None):
+    if setting != None:
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+
     # 「ログアウト」できるときにログアウトする
     if ctrller.get_element_count(By.XPATH, '//*[@id="CHeader"]//span[contains(text(),"ログアウト")]') > 0:
         # 「ログアウト」がクリッカブルでないときは「キャンセル」をクリックする ★ToDo★
@@ -131,7 +137,10 @@ def checkConditions(conditions):
 
 
 # 検索画面表示
-def displaySearchScreen(ctrller):
+def displaySearchScreen(ctrller, setting=None):
+    if setting != None:
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+        
     # マイページのリンクがあればクリック
     if ctrller.is_enabled(By.XPATH, '//a/span[text()="マイページ"]'):
         ctrller.click(By.XPATH, '//a/span[text()="マイページ"]')
@@ -179,7 +188,7 @@ def enterCondition(ctrller, conditions):
         if ctrller.driver.find_element(By.ID, seikyuJiko_ID).is_selected() == True:
             ctrller.click(By.ID, seikyuJiko_ID)
 
-    # 「請求種別」の選択
+    # 「請求種別」の選択  ToDo:「地役権図面」を追加
     for seikyuJiko in seikyuJiko_list:
         if seikyuJiko == "全部事項":
             ctrller.click(By.ID, 'fuAll')
@@ -197,7 +206,12 @@ def enterCondition(ctrller, conditions):
 #      0 ： すべての地番を選択できた場合
 #     -1 ： 選択すべき地番がなかった場合
 #     取得開始位置=start_select_number + 50 ： 選択すべき地番が残っている場合の次の取得開始位置
-def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
+def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to, setting=None):
+    if setting != None:
+        MAX_CHIBAN_SELECT_NUMBER = setting["toukiController.MAX_CHIBAN_SELECT_NUMBER"]
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+        CHIBAN_RETRY_WAIT_TIME   = setting["toukiController.CHIBAN_RETRY_WAIT_TIME"]
+        CHIBAN_RETRY_OUT_COUNT   = setting["toukiController.CHIBAN_RETRY_OUT_COUNT"]
 
     next_start_select_number = -1  # 地番選択なし（初期値）
 
@@ -242,7 +256,7 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
                     errorMessage += f'{CHIBAN_RETRY_OUT_COUNT}回連続して検索エラーとなりました。\n処理を中断します。'
                     print(errorMessage)
                     # 処理中断をExcelに出力
-                    xlsCtr.save_with_exception()
+                    xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
                     g_process_info['status'] = False
                     g_process_info['message'] = errorMessage
                     if g_isDisplayMessage:
@@ -274,7 +288,7 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
                 errorMessage = '処理を中断します。'
                 print(errorMessage)
                 # 処理中断をExcelに出力
-                xlsCtr.save_with_exception()
+                xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
                 g_process_info['status'] = False
                 g_process_info['message'] = errorMessage
                 if g_isDisplayMessage:
@@ -348,7 +362,10 @@ def selectChiban(ctrller, xlsCtr, start_select_number, chiban_from, chiban_to):
 
 
 # 検索結果画面（「不動産請求一覧」画面）表示
-def dispalySearchResult(ctrller, xlsCtr):
+def dispalySearchResult(ctrller, xlsCtr, setting=None):
+    if setting != None:
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+        
     # 検索結果の表示待ち
     ctrller.wait(MAX_WAIT_TIME, By.ID, f'seikyuJiko_1')
 
@@ -389,11 +406,11 @@ def dispalySearchResult(ctrller, xlsCtr):
                                       data_zumen['登録年月日'], 
                                       data_zumen['事件ID'], 
                                       data_zumen['所在及び地番・家屋番号（事件前物件）'], 
-                                      data_zumen['所在及び地番・家屋番号（事件後物件）'] )
+                                      data_zumen['所在及び地番・家屋番号（事件後物件）'] )  # ToDo：選択のみの場合は実施しない
             else:
                 # 不動産請求明細＋図面なしの理由のデータ出力
                 reasonZumenNashi = ctrller.get_text(By.XPATH, '//*[@id="jkDlgErrMsgArea"]/ul/li[1]')
-                xlsCtr.writeZemenNasi(seikyuJiko, shozaiType, shozai, reasonZumenNashi)
+                xlsCtr.writeZemenNasi(seikyuJiko, shozaiType, shozai, reasonZumenNashi)  # ToDo：選択のみの場合は実施しない
 
             # 「キャンセル」ボタンをクリックし、「不動産請求一覧」画面に戻る
             ctrller.click(By.ID, 'jkDlgBtnCancel')
@@ -401,7 +418,7 @@ def dispalySearchResult(ctrller, xlsCtr):
         # 図面一覧ボタンなし場合
         else:
             # 不動産請求明細データ出力
-            xlsCtr.writeFudousan(seikyuJiko, shozaiType, shozai)
+            xlsCtr.writeFudousan(seikyuJiko, shozaiType, shozai)  # ToDo：選択のみの場合は実施しない
 
         # 次の行
         i += 1
@@ -437,8 +454,13 @@ def collectData_stab(conditions, user_id, password, isDisplayMessage=True):
     time.sleep(3)
     return './output/output_20241115_163708.xlsx', g_process_info
 
+import json
 # データ収集（収集条件）
-def collectData(conditions, user_id, password, isDisplayMessage=True):
+def collectData(conditions, user_id, password, setting=None, isDisplayMessage=True):
+    if setting != None:
+        MAX_CHIBAN_INTERVAL      = setting["toukiController.MAX_CHIBAN_INTERVAL"]
+        print(json.dumps(setting, indent=4, ensure_ascii=False))
+
     ctrller = None
     xlsCtr = None
     g_isDisplayMessage = isDisplayMessage
@@ -448,16 +470,23 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
             'html' : None,
             'traceback' : None
         }
+
     try:
         # 収集条件のデータ出力
-        xlsCtr = xlsContorller.xlsContorller()
-        xlsCtr.writeCondition(user_id, conditions)
+        xlsCtr = xlsContorller.xlsContorller()  # ToDo：選択のみの場合は実施しない
+        xlsCtr.writeCondition(user_id, conditions)  # ToDo：選択のみの場合は実施しない
         
         # ブラウザ起動
-        ctrller = selenimuContorller.selenimuContorller()
+        if setting != None:
+            ctrller = selenimuContorller.selenimuContorller(
+                        interval_time      = setting["selenimuContorller.INTERVAL_TIME"],
+                        interval_time_rate = setting["selenimuContorller.INTERVAL_TIME_RATE"]
+                        )
+        else:
+            ctrller = selenimuContorller.selenimuContorller()
 
         # ログイン(ログイン、パスワード)
-        login(ctrller, user_id, password)
+        login(ctrller, user_id, password, setting)
         
         # 地番・家屋番号開始、終了の10件ごとに以下の処理呼び出し
         # 地番・家屋番号の間隔を10：最大地番間隔で割って切り捨て
@@ -474,7 +503,7 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
             # print(f'{i+1}回目：From:{f} To:{t}')
 
             # 検索条件入力画面表示
-            displaySearchScreen(ctrller)
+            displaySearchScreen(ctrller, setting)
 
             # 検索条件入力
             conditions_division = conditions
@@ -485,8 +514,9 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
             start_select_number = 1
             while True:
                 # 地番・家屋番号をMAX50件ごと選択する
-                next_start_select_number = selectChiban(ctrller, xlsCtr, start_select_number, conditions_division[3], conditions_division[4])
+                next_start_select_number = selectChiban(ctrller, xlsCtr, start_select_number, conditions_division[3], conditions_division[4], setting)
                 start_select_number = next_start_select_number
+                # ToDo：選択のみの場合はここで、「共同担保目録」を「要」に選択して、処理終了する
 
                 # 地番・家屋番号の選択なし
                 if start_select_number < 0:
@@ -496,10 +526,10 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
                 ctrller.click(By.XPATH, '//*[@id="tabsFudosan"]//span[contains(text(),"確定")]')
                 
                 # 検索結果画面（「不動産請求一覧」画面）表示
-                dispalySearchResult(ctrller, xlsCtr)
+                dispalySearchResult(ctrller, xlsCtr, setting)
 
                 # データセーブ
-                xlsCtr.save()
+                xlsCtr.save()  # ToDo：選択のみの場合は実施しない
 
                 # 「戻る」ボタンをクリック
                 ctrller.click(By.XPATH, '//span[contains(text(),"戻る")]')
@@ -509,12 +539,12 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
                     break
 
         # データセーブ
-        xlsCtr.save()
+        xlsCtr.save()     # ToDo：選択のみの場合は実施しない
         
     except Exception as e:
         # エラー発生をExcelに出力
         if xlsCtr != None:
-            xlsCtr.save_with_exception()
+            xlsCtr.save_with_exception()  # ToDo：選択のみの場合は実施しない
 
         # ログインエラーのとき
         if 'ID番号又はパスワードに誤りがあります。' in f'{e}':
@@ -552,13 +582,13 @@ def collectData(conditions, user_id, password, isDisplayMessage=True):
             Message.MessageForefrontShowinfo(errorMessage)
 
     # ログアウト
-    logout(ctrller)
+    logout(ctrller, setting)
     
     # ブラウザ閉じる
     ctrller.close()
     
     # 収集結果ファイル名を返却
     if isDisplayMessage:
-        return xlsCtr.output_file_path
+        return xlsCtr.output_file_path  # ToDo：選択のみの場合は実施しない
     else:
-        return xlsCtr.output_file_path, g_process_info
+        return xlsCtr.output_file_path, g_process_info  # ToDo：選択のみの場合は実施しない

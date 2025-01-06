@@ -12,8 +12,10 @@ import getConfig
 def main():
     # 設定ファイル読込
     config = None
+    setting = None
     try:
-        config = getConfig.getConfigFromXlsx()
+        config = getConfig.getConditionFromXls()
+        setting = getConfig.getSettingFromXls()
     except Exception as e:
         errorMessage=f'設定ファイルの読み込みでエラーが発生しました。\nエラー内容[{e}]'
         print(errorMessage)
@@ -45,18 +47,18 @@ def main():
     
     # データ収集
     import ProcessStatus
-    ps = ProcessStatus.ProcessStatus()
+    ps = ProcessStatus.ProcessStatus(setting)
     p_count = len(conditions_list)
     for i, conditions in enumerate(conditions_list):
         status = f"{i+1}/{p_count}"
         ps.showStatus(status)
-        output_file_path = toukiController.collectData(conditions, user_id, password)
-        # 処理終了時のメッセージ表示のため、出力ファイル名を追記
+        output_file_path = toukiController.collectData(conditions, user_id, password, setting)
+        # 処理終了時のメッセージ表示のため、出力ファイル名を追記 ToDo:選択のみのとき、ファイル名の返却なしを考慮
         output_file_list.append(output_file_path)
     ps.close()
 
     
-    # 収集終了メッセージ
+    # 収集終了メッセージ  ToDo:選択のみのとき、中断するため、終了メッセージを変更する
     endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
     for i, output_file in enumerate(output_file_list):
         endMessage += f'\n{i+1}：【{output_file}】'
