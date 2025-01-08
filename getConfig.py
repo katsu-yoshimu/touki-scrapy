@@ -71,9 +71,9 @@ def getConditionFromXls():
         # 請求種別
         # チェックあり：True／なし：False
         # 7カラムから12カラムにチェックなしのときは無効行
-        if ws.cell(row=i, column=7).value != True and \
-           ws.cell(row=i, column=8).value != True and \
-           ws.cell(row=i, column=9).value != True and \
+        if ws.cell(row=i, column=7).value  != True and \
+           ws.cell(row=i, column=8).value  != True and \
+           ws.cell(row=i, column=9).value  != True and \
            ws.cell(row=i, column=10).value != True and \
            ws.cell(row=i, column=11).value != True and \
            ws.cell(row=i, column=12).value != True:
@@ -83,58 +83,41 @@ def getConditionFromXls():
         if ws.cell(row=i, column=12).value == True:    
             select_only = True
 
-            # 7カラムから11カラムの一番左にチェックありに従う
-            if ws.cell(row=i, column=7).value == True:
+            # 7カラムから11カラムにチェックなしのときは、7カラムにチェックありとして扱う
+            if ws.cell(row=i, column=7).value  != True and \
+               ws.cell(row=i, column=8).value  != True and \
+               ws.cell(row=i, column=9).value  != True and \
+               ws.cell(row=i, column=10).value != True and \
+               ws.cell(row=i, column=11).value != True:
                 shozaiType = "土地"
                 seikyuJiko = ["全部事項"]
-            elif ws.cell(row=i, column=8).value == True:
-                shozaiType = "土地"
-                seikyuJiko = ["土地所在図/地積測量図"]
-            elif ws.cell(row=i, column=9).value == True:
-                shozaiType = "土地"
-                seikyuJiko = ["地役権図面"]
-            elif ws.cell(row=i, column=10).value == True:
-                shozaiType = "建物"
-                seikyuJiko = ["全部事項"]
-            elif ws.cell(row=i, column=11).value == True:
-                shozaiType = "建物"
-                seikyuJiko = ["建物図面/各階平面図"]
-            # 7カラムから11カラムのいずれもチェックなしのときは、7カラムがチェックされているものとして扱う
-            else:
-                shozaiType = "土地"
-                seikyuJiko = ["全部事項"]
-
-            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
-
-            # 12カラムにチェックありのときは、以降の行は無効行
-            break
-
+                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+            
         # 12カラムにチェックなしのときは、7カラムから11カラムにチェックありのものを条件に追加
         else:
             select_only = False
             
-            if ws.cell(row=i, column=7).value == True:
-                shozaiType = "土地"
-                seikyuJiko = ["全部事項"]
-                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
-            if ws.cell(row=i, column=8).value == True:
-                shozaiType = "土地"
-                seikyuJiko = ["土地所在図/地積測量図"]
-                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
-            if ws.cell(row=i, column=9).value == True:
-                shozaiType = "土地"
-                seikyuJiko = ["地役権図面"]
-                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
-            if ws.cell(row=i, column=10).value == True:
-                shozaiType = "建物"
-                seikyuJiko = ["全部事項"]
-                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
-            if ws.cell(row=i, column=11).value == True:
-                shozaiType = "建物"
-                seikyuJiko = ["建物図面/各階平面図"]
-                config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+        if ws.cell(row=i, column=7).value == True:
+            shozaiType = "土地"
+            seikyuJiko = ["全部事項"]
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+        if ws.cell(row=i, column=8).value == True:
+            shozaiType = "土地"
+            seikyuJiko = ["土地所在図/地積測量図"]
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+        if ws.cell(row=i, column=9).value == True:
+            shozaiType = "土地"
+            seikyuJiko = ["地役権図面"]
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+        if ws.cell(row=i, column=10).value == True:
+            shozaiType = "建物"
+            seikyuJiko = ["全部事項"]
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
+        if ws.cell(row=i, column=11).value == True:
+            shozaiType = "建物"
+            seikyuJiko = ["建物図面/各階平面図"]
+            config["conditions_list"].append([shozaiType, todofukenShozai, chibanKuiki, chiban_from, chiban_to, seikyuJiko, select_only])
 
-    
     wb.close()
 
     return config

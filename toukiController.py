@@ -430,6 +430,65 @@ def dispalySearchResult(ctrller, xlsCtr, setting=None):
         # 次の行
         i += 1
 
+# 検索結果画面（「不動産請求一覧」画面の選択）表示
+def selectSearchResult(ctrller, xlsCtr, setting=None):
+    if setting != None:
+        MAX_WAIT_TIME            = setting["toukiController.MAX_WAIT_TIME"]
+        
+    # 検索結果の表示待ち
+    ctrller.wait(MAX_WAIT_TIME, By.ID, f'seikyuJiko_1')
+
+    # 検索結果の明細ごとに以下の処理実行
+    i = 1
+    while (ctrller.get_element_count(By.ID, f'seikyuJiko_{i}') == 1):
+        # 請求種別、種別、所在及び地番・家屋番号 / 不動産番号 を取得
+        seikyuJiko = ctrller.get_text(By.ID, f'seikyuJiko_{i}')
+
+        # 請求種別が「全部事項」のとき
+        if seikyuJiko == "全部事項":
+            # 明細チェック
+            ctrller.click(By.XPATH, f'//table[@id="fudosanIchiranTbl"]//input[@id="sentaku_{i}"]')
+
+        # 請求種別が「全部事項」以外＝図面のとき
+        else:
+            # 「済」マークがあるとき
+            if ctrller.get_text(By.ID, f'jikenSpan_{i}') == "済":
+                # 明細チェック
+                ctrller.click(By.XPATH, f'//table[@id="fudosanIchiranTbl"]//input[@id="sentaku_{i}"]')
+
+            # 「済」マークがないとき
+            else:
+                # 「図面一覧」ボタンをクリック
+                ctrller.click(By.ID, f'jiken_{i}')
+
+                # 「図面事件一覧」画面の表示待ち＝一覧表orエラーメッセージの表示待ち
+                ctrller.wait_any_of(MAX_WAIT_TIME,
+                                    By.XPATH, '//table[@id="jikenListTbl"]//td[@class="col_w2"]',
+                                    By.XPATH, '//*[@id="jkDlgErrMsgArea"]/ul/li[1]')
+                
+                # 図面ありのとき
+                cnt_zumen = ctrller.get_element_count(By.XPATH, f'//table[@id="jikenListTbl"]//td[@class="col_w2"]')
+                if cnt_zumen > 0:
+                    # 明細全チェック //*[@id="jikenListDlgZensentaku"]
+                    ctrller.click(By.ID, 'jikenListDlgZensentaku')
+
+                    # 「OK」ボタンをクリックし、「不動産請求一覧」画面に戻る
+                    ctrller.click(By.ID, 'jkDlgBtnOk')
+
+                    # 「済」マークがあるとき
+                    time.sleep(1) # 1秒のwaitがないと「済」を認識できない
+                    if ctrller.get_text(By.ID, f'jikenSpan_{i}') == "済":
+                        # 明細チェック
+                        ctrller.click(By.XPATH, f'//table[@id="fudosanIchiranTbl"]//input[@id="sentaku_{i}"]')
+
+                # 図面なしのとき
+                else:
+                    # 「キャンセル」ボタンをクリックし、「不動産請求一覧」画面に戻る
+                    ctrller.click(By.ID, 'jkDlgBtnCancel')
+
+        # 次の行
+        i += 1
+
 
 import traceback
 g_isDisplayMessage = True # メッセージ表示=既定値：True
@@ -442,7 +501,7 @@ g_process_info = {
         }
         
 # テスト用スタブ：データ収集（収集条件）異常終了
-def collectData_stab_abnormal(conditions, user_id, password, isDisplayMessage=True):
+def collectData_stab_abnormal(conditions, user_id, password, setting=None, isDisplayMessage=True):
     errorMessage  = f'収集条件：{xlsContorller.editCollectionCondition(conditions)}の収集処理にてエラーが発生しました。\n'
     errorMessage += f'この処理を中断します。エラー対処後、再実行してください。'
     g_process_info = {
@@ -456,7 +515,7 @@ def collectData_stab_abnormal(conditions, user_id, password, isDisplayMessage=Tr
     return './output/output_20241115_163708.xlsx', g_process_info
 
 # テスト用スタブ：データ収集（収集条件）正常終了
-def collectData_stab(conditions, user_id, password, isDisplayMessage=True):
+def collectData_stab(conditions, user_id, password, setting=None, isDisplayMessage=True):
     # print(f'g_process_info={g_process_info}')
     time.sleep(3)
     return './output/output_20241115_163708.xlsx', g_process_info
@@ -525,9 +584,24 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
                 next_start_select_number = selectChiban(ctrller, xlsCtr, start_select_number, conditions_division[3], conditions_division[4], setting)
                 start_select_number = next_start_select_number
 
-                # 選択のみの場合は、 「共同担保目録」を「要」に選択して、処理終了する
+                # 選択のみの場合は、 
                 if (conditions[6] == True):
+                    # 「共同担保目録」を「要」に選択
                     ctrller.click(By.ID, 'fuKyodoTanpoYES')
+                    
+                    # 「確定」ボタンをクリック
+                    ctrller.click(By.XPATH, '//*[@id="tabsFudosan"]//span[contains(text(),"確定")]')
+
+                    # 検索結果画面（「不動産請求一覧」画面の選択）表示
+                    selectSearchResult(ctrller, xlsCtr, setting)
+
+                    stopMessage  = "地番・家屋番号の選択状態で一時停止しています。"
+                    stopMessage += "\n「OK」ボタンを押すとブラウザが閉じられます。"
+                    stopMessage += "\n「OK」ボタンを押す前に必要なブラウザ操作を行ってください。"
+                    print(stopMessage)
+                    Message.MessageForefrontShowinfo(stopMessage)
+
+                    # 処理終了
                     return ""
 
                 # 地番・家屋番号の選択なし

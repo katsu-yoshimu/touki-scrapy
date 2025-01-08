@@ -17,7 +17,7 @@
 1. **exe作成**
 
    ```cmd
-   pyinstaller main.py --onefile --clean
+   pyinstaller main.py --onefile --clean --hidden-import=plyer.platforms.win.notification
    cd dist
    rename main.exe touki-scrapy.exe
    

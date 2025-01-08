@@ -40,7 +40,7 @@ def main():
     for i, conditions in enumerate(conditions_list):
         startMessage += f'\n\n{i+1}：{xlsContorller.editCollectionCondition(conditions)}'
         if conditions[6] == True:
-            startMessage += f'\n\n★注意★ {i+1}：地番・家屋番号の選択のみで処理を終了します。'
+            startMessage += f' ※注意※ファイル出力なし、地番・家屋番号の選択状態で処理を一時停止します。'
     print(startMessage)
     if Message.MessageForefront(startMessage) == False:
         return
@@ -53,34 +53,23 @@ def main():
     for i, conditions in enumerate(conditions_list):
         status = f"{i+1}/{p_count}"
         ps.showStatus(status)
-        output_file_path = toukiController.collectData(conditions, user_id, password, setting)
+        output_file_path = toukiController.collectData(conditions, user_id, password, setting=setting)
         # 処理終了時のメッセージ表示のため、出力ファイル名を追記 ToDo:選択のみのとき、ファイル名の返却なしを考慮
         if output_file_path != "":
             output_file_list.append(output_file_path)
+        else:
+            output_file_list.append("ファイル出力なし、地番・家屋番号の選択状態で一時停止しました")
+
     ps.close()
 
     
     # 収集終了メッセージ
-    if output_file_path != "":
-        # 選択のみがない場合
-        endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
-        for i, output_file in enumerate(output_file_list):
-            endMessage += f'\n{i+1}：【{output_file}】'
-        print(endMessage)
-        Message.MessageForefrontShowinfo(endMessage)
-    else:
-        # 選択のみの場合
-        if len(conditions_list) == 1:
-            endMessage = '不動産請求情報収集が処理終了しました。\n地番・家屋番号の選択状態で処理を終了しました。ご確認ください。'
-            Message.MessageForefrontShowinfo(endMessage)
-        else:
-        # 選択のみがあるがファイル出力もある場合
-            endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
-            for i, output_file in enumerate(output_file_list):
-                endMessage += f'\n{i+1}：【{output_file}】'
-            print(endMessage)
-            Message.MessageForefrontShowinfo(endMessage)
-            
+    endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
+    for i, output_file in enumerate(output_file_list):
+        endMessage += f'\n\n{i+1}：【{output_file}】'
+    print(endMessage)
+    Message.MessageForefrontShowinfo(endMessage)
+
 
 import os
 import sys
@@ -91,9 +80,6 @@ main()
 
 # 終了時に自動的にコンソールを消さない
 endMessage = '''
-≪≪≪≪≪ コンソールを消すためには、「Enter」キーを押してください       ≫≫≫≫≫
-≪≪≪≪≪ ★注意★：地番・家屋番号の選択のみを選択した場合は、          ≫≫≫≫≫
-≪≪≪≪≪       「Enter」キーを押すとブラウザが閉じられます            ≫≫≫≫≫
-≪≪≪≪≪       「Enter」キーを押す前に必要なブラウザ操作を実行ください ≫≫≫≫≫
+≪≪≪≪≪ コンソールを消すためには、「Enter」キーを押してください ≫≫≫≫≫
 '''
 input(endMessage)
