@@ -11,8 +11,8 @@ MAX_WAIT_TIME = 10 # 最大待ち時間、単位：秒
 CHIBAN_RETRY_WAIT_TIME = 5 # 地番・家屋番号一覧表示で再実行が必要な場合の待ち時間、単位：秒
 CHIBAN_RETRY_OUT_COUNT = 5 # 地番・家屋番号一覧検索のリトライアウト数、5回連続して検索エラーなら処理中断
 
-from selenium.webdriver.common.by import By
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -542,8 +542,9 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         if (conditions[6] == False):
             xlsCtr = xlsContorller.xlsContorller()      
             xlsCtr.writeCondition(user_id, conditions)
+        else:
             setting["selenimuContorller.HEADLESS_MODE"] = 0 # 選択のみの場合は、ブラウザを表示する
-        
+            
         # ブラウザ起動
         if setting != None:
             ctrller = selenimuContorller.selenimuContorller(
