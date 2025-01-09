@@ -4,14 +4,20 @@ from plyer import notification
 def openWindow():
     options = webdriver.ChromeOptions()
     options.add_argument('--window-position=0,0')
-    options.add_argument('--window-size=200,300')
+    options.add_argument('--window-size=400,400')
     options.add_experimental_option("excludeSwitches", ['enable-automation'])
     driver = webdriver.Chrome(options=options)
 
     html='<html><body>'
     html+='<h1>不動産請求情報収集処理</h1><div style=\"text-align: left;\">'
-    html+='<b id=\"message\"style=\"background: yellow;\"></b>'
+    html+='<b id=\"message\" style=\"background: yellow;\"></b>'
     html+='番目のスクリプト稼働中です。<br/>しばらくお待ちください。</div>'
+    
+    html+='<div style=\"text-align: left;\">'
+    html+='<br/>収集条件は以下のとおりです。<br/>'
+    html+='<span id=\"condition\" style=\"background: yellow;\"></span>'
+    html+='</div>'
+    
     html+='</body></html>'
     
     script = f"document.write('{html}');"
@@ -32,7 +38,7 @@ class ProcessStatus():
         if self.IS_NOTIFY_BROWSER == 1:
             self.driver = openWindow()
     
-    def showStatus(self, message):
+    def showStatus(self, message, condition):
         try:
             if self.IS_NOTIFY_WINDOWS == 1:
                 notification.notify(
@@ -43,6 +49,7 @@ class ProcessStatus():
             
             if self.IS_NOTIFY_BROWSER == 1:
                 script = f"document.getElementById(\"message\").innerText='{message}';"
+                script += f"document.getElementById(\"condition\").innerText='{condition}';"
                 self.driver.execute_script(script)
 
         except Exception as e:

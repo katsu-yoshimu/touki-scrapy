@@ -8,6 +8,8 @@ def editCollectionCondition(conditions):
     condition += f'／【市町村名】{conditions[2]}'
     condition += f'／【地番・家屋番号】{conditions[3]}～{conditions[4]}'
     condition += f'／【請求種別】{conditions[5]}'
+    if conditions[6] == True:
+        condition += f' ※注意※ファイル出力なし、地番・家屋番号の選択状態で処理を一時停止します。'
     return condition
 
 class xlsContorller():

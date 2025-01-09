@@ -595,9 +595,13 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
                     # 検索結果画面（「不動産請求一覧」画面の選択）表示
                     selectSearchResult(ctrller, xlsCtr, setting)
 
-                    stopMessage  = "地番・家屋番号の選択状態で一時停止しています。"
-                    stopMessage += "\n「OK」ボタンを押すとブラウザが閉じられます。"
-                    stopMessage += "\n「OK」ボタンを押す前に必要なブラウザ操作を行ってください。"
+                    stopMessage  = "地番・家屋番号の選択状態で一時停止しています。\n"
+                    stopMessage += "収集条件は以下のとおりです。\n\n"
+                    conditions_for_display = conditions
+                    conditions_for_display[6] = False
+                    stopMessage += xlsContorller.editCollectionCondition(conditions_for_display)
+                    stopMessage += "\n\n※注意※ 「OK」ボタンを押すとブラウザが閉じられます。"
+                    stopMessage += "「OK」ボタンを押す前に必要なブラウザ操作を行ってください。"
                     print(stopMessage)
                     Message.MessageForefrontShowinfo(stopMessage)
 

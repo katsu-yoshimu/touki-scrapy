@@ -36,11 +36,10 @@ def main():
             return
 
     # 収集開始メッセージ
-    startMessage = f'不動産請求情報収集を実行しますか？\n実行ユーザはID番号【{user_id}】、パスワード【{password}】です。\n収集条件は以下の通りです。'
+    startMessage = f'不動産請求情報収集を実行しますか？\n実行ユーザはID番号【{user_id}】、パスワード【{password}】です。\n収集条件は以下のとおりです。'
     for i, conditions in enumerate(conditions_list):
         startMessage += f'\n\n{i+1}：{xlsContorller.editCollectionCondition(conditions)}'
-        if conditions[6] == True:
-            startMessage += f' ※注意※ファイル出力なし、地番・家屋番号の選択状態で処理を一時停止します。'
+
     print(startMessage)
     if Message.MessageForefront(startMessage) == False:
         return
@@ -52,21 +51,23 @@ def main():
     output_file_path = ""
     for i, conditions in enumerate(conditions_list):
         status = f"{i+1}/{p_count}"
-        ps.showStatus(status)
+        condition = xlsContorller.editCollectionCondition(conditions)
+        condition = condition.replace("'", "\\'")
+        ps.showStatus(status, condition)
         output_file_path = toukiController.collectData(conditions, user_id, password, setting=setting)
         # 処理終了時のメッセージ表示のため、出力ファイル名を追記 ToDo:選択のみのとき、ファイル名の返却なしを考慮
         if output_file_path != "":
             output_file_list.append(output_file_path)
         else:
-            output_file_list.append("ファイル出力なし、地番・家屋番号の選択状態で一時停止しました")
+            output_file_list.append("ファイル出力なし")
 
     ps.close()
 
     
     # 収集終了メッセージ
-    endMessage = '不動産請求情報収集が処理終了しました。\n収集結果は以下に出力されています。ご確認ください。'
+    endMessage = '不動産請求情報収集が処理終了しました。\n収集条件、および、収集結果は以下のとおりです。ご確認ください。'
     for i, output_file in enumerate(output_file_list):
-        endMessage += f'\n\n{i+1}：【{output_file}】'
+        endMessage += f'\n\n{i+1}：{xlsContorller.editCollectionCondition(conditions_list[i])}\n  ⇒【{output_file}】'
     print(endMessage)
     Message.MessageForefrontShowinfo(endMessage)
 
