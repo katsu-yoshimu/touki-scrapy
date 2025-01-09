@@ -542,6 +542,7 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         if (conditions[6] == False):
             xlsCtr = xlsContorller.xlsContorller()      
             xlsCtr.writeCondition(user_id, conditions)
+            setting["selenimuContorller.HEADLESS_MODE"] = 0 # 選択のみの場合は、ブラウザを表示する
         
         # ブラウザ起動
         if setting != None:
