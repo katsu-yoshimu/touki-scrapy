@@ -547,7 +547,8 @@ def collectData(conditions, user_id, password, setting=None, isDisplayMessage=Tr
         if setting != None:
             ctrller = selenimuContorller.selenimuContorller(
                         interval_time      = setting["selenimuContorller.INTERVAL_TIME"],
-                        interval_time_rate = setting["selenimuContorller.INTERVAL_TIME_RATE"]
+                        interval_time_rate = setting["selenimuContorller.INTERVAL_TIME_RATE"],
+                        headless_mode      = setting["selenimuContorller.HEADLESS_MODE"]
                         )
         else:
             ctrller = selenimuContorller.selenimuContorller()

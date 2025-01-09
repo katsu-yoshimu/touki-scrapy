@@ -139,10 +139,11 @@ def getSettingFromXls():
     config["toukiController.MAX_WAIT_TIME"]            = ws.cell(row=5, column=5).value
     config["toukiController.CHIBAN_RETRY_WAIT_TIME"]   = ws.cell(row=6, column=5).value
     config["toukiController.CHIBAN_RETRY_OUT_COUNT"]   = ws.cell(row=7, column=5).value
-    config["selenimuContorller.INTERVAL_TIME"]            = ws.cell(row=8, column=5).value
-    config["selenimuContorller.INTERVAL_TIME_RATE"]       = ws.cell(row=9, column=5).value
-    config["ProcessStatus.IS_NOTIFY_WINDOWS"]        = ws.cell(row=10, column=5).value
-    config["ProcessStatus.IS_NOTIFY_BROWSER"]        = ws.cell(row=11, column=5).value
+    config["selenimuContorller.INTERVAL_TIME"]         = ws.cell(row=8, column=5).value
+    config["selenimuContorller.INTERVAL_TIME_RATE"]    = ws.cell(row=9, column=5).value
+    config["selenimuContorller.HEADLESS_MODE"]         = ws.cell(row=10, column=5).value
+    config["ProcessStatus.IS_NOTIFY_WINDOWS"]          = ws.cell(row=11, column=5).value
+    config["ProcessStatus.IS_NOTIFY_BROWSER"]          = ws.cell(row=12, column=5).value
     
     # 設定値の妥当性チェック
     if int != type(config["toukiController.MAX_CHIBAN_SELECT_NUMBER"]):
@@ -180,6 +181,11 @@ def getSettingFromXls():
     elif config["selenimuContorller.INTERVAL_TIME_RATE"] < 0.0 or config["selenimuContorller.INTERVAL_TIME_RATE"] > 1.0:
         raise Exception("設定値：INTERVAL_TIME_RATEの値は、0.0～1.0の小数を指定してください")
 
+    if int != type(config["selenimuContorller.HEADLESS_MODE"]):
+        raise Exception("設定値：HEADLESS_MODEの値は、0：通知なし、または、1：通知ありを指定してください")
+    elif config["selenimuContorller.HEADLESS_MODE"] != 0 and config["selenimuContorller.HEADLESS_MODE"] != 1:
+        raise Exception("設定値：HEADLESS_MODEの値は、0：通知なし、または、1：通知ありを指定してください")
+    
     if int != type(config["ProcessStatus.IS_NOTIFY_WINDOWS"]):
         raise Exception("設定値：IS_NOTIFY_WINDOWSの値は、0：通知なし、または、1：通知ありを指定してください")
     elif config["ProcessStatus.IS_NOTIFY_WINDOWS"] != 0 and config["ProcessStatus.IS_NOTIFY_WINDOWS"] != 1:

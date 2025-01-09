@@ -15,7 +15,7 @@ class selenimuContorller():
     INTERVAL_TIME_RATE=0.2
     last_processed_time = 0
 
-    def __init__(self, interval_time=3, interval_time_rate=0.2):
+    def __init__(self, interval_time=3, interval_time_rate=0.2, headless_mode=0):
         self.actionlog(f'[open] ブラウザを開きます。')
 
         self.INTERVAL_TIME = interval_time
@@ -24,7 +24,8 @@ class selenimuContorller():
 
         # オプション指定
         options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
+        if headless_mode == 1:
+            options.add_argument('--headless')
         options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
         options.add_argument('--disable-blink-features=AutomationControlled')
         self.driver = webdriver.Chrome(options=options)
