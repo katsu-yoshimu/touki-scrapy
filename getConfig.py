@@ -182,9 +182,9 @@ def getSettingFromXls():
         raise Exception("設定値：INTERVAL_TIME_RATEの値は、0.0～1.0の小数を指定してください")
 
     if int != type(config["selenimuContorller.HEADLESS_MODE"]):
-        raise Exception("設定値：HEADLESS_MODEの値は、0：通知なし、または、1：通知ありを指定してください")
+        raise Exception("設定値：HEADLESS_MODEの値は、0：headlessモード無効、または、1：headlessモード有効を指定してください")
     elif config["selenimuContorller.HEADLESS_MODE"] != 0 and config["selenimuContorller.HEADLESS_MODE"] != 1:
-        raise Exception("設定値：HEADLESS_MODEの値は、0：通知なし、または、1：通知ありを指定してください")
+        raise Exception("設定値：HEADLESS_MODEの値は、0：headlessモード無効、または、1：headlessモード有効を指定してください")
     
     if int != type(config["ProcessStatus.IS_NOTIFY_WINDOWS"]):
         raise Exception("設定値：IS_NOTIFY_WINDOWSの値は、0：通知なし、または、1：通知ありを指定してください")
